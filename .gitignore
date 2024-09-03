@@ -2,3 +2,4 @@ ad_server/secret.py
 __pycache__
 DRA/datasets/mvtec/carpet/
 experiment/
+.venv/
