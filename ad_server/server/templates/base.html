@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GSF Solution</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/static/css/base.css">
+
+</head>
+
+<body>
+    <!-- navigation -->
+    <nav class="flex-div">
+        <div class="nav-left flex-div">
+            <img src="/static/imgs/menu.png" class="menu-icon">
+            <img src="/static/imgs/gsf-logo.png" class="logo">
+        </div>
+        <div class="nav-middle">
+            <div class="search-box flex-div">
+                <input type="text" placeholder="Search">
+                <img src="/static/imgs/search.png">
+            </div>
+        </div>
+        <div class="nav-right flex-div">
+            <img src="/static/imgs/upload.png">
+            <img src="/static/imgs/notification.png">
+        </div>
+    </nav>
+
+    <!-- left side-bar -->
+    <div class="side-bar">
+        <div class="shortcut-links">
+            <a href="{{ url_for('main.index') }}"><img src="/static/imgs/home.png">
+                <p>Home</p>
+            </a>
+            <a href=""><img src="/static/imgs/explore.png">
+                <p>Setting</p>
+            </a>
+            <a href="{{ url_for('main.monitor') }}"><img src="/static/imgs/library.png">
+                <p>Monitoring</p>
+            </a>
+            <a href=""><img src="/static/imgs/history.png">
+                <p>Histroy</p>
+            </a>
+            <a href=""><img src="/static/imgs/messages.png">
+                <p>Messages</p>
+            </a>
+            <a href=""><img src="/static/imgs/show-more.png">
+                <p>Show More</p>
+            </a>
+            <hr>
+        </div>
+        <div class="more-info">
+            <h3>More Information</h3>
+            <a href=""><img src="/static/imgs/anomaly-1.jpg"></a>
+            <a href=""><img src="/static/imgs/anomaly-2.png"></a>
+            <a href=""><img src="/static/imgs/anomaly-3.png"></a>
+        </div>
+    </div>
+
+    <!-- main content -->
+    <div class="main-content-box">
+        {% block content %}
+        {% endblock %}
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="static/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/chart.js"></script>
+</body>
+
+</html>
