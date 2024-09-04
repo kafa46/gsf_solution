@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="row mb-4">
+        <!-- 카메라 연결 상태 -->
+        <div class="col-md-12">
+            <div class="d-flex align-items-center mb-3">
+                <span class="fs-5 me-2">Camera Connection Status</span>
+                <div id="connection-status" class="me-2">
+                    <span id="status-indicator" class="badge bg-danger">Disconnected</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- 실시간 카메라와 처리된 이미지 -->
+        <div class="col-md-6 mb-3">
+            <div class="border rounded p-2">
+                <h2 class="h5 mb-3">Realtime monitoring</h2>
+                <!-- Live Camera Feed -->
+                <img id="videoFeed" src="/static/imgs/placeholder.png" class="img-fluid" alt="Live Camera Feed">
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="border rounded p-2">
+                <h2 class="h5 mb-3">Processed Image</h2>
+                <!-- Processed Image -->
+                <img id="processedImage" src="/static/imgs/placeholder.png" class="img-fluid" alt="Processed Image">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Table with input fields -->
+        <div class="col-md-12 mb-4">
+            <h2 class="h5 mb-3">Configuration</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Margin</th>
+                        <th>Lower Bound</th>
+                        <th>Upper Bound</th>
+                        <th><button type="button" class="btn btn-outline-secondary btn-sm" id="addRowBtn">행 추가</button></th>
+                    </tr>
+                </thead>
+                <tbody id="configTableBody">
+                    <!-- table row -->
+                    <tr>
+                        <td>1</td>
+                        <td><input type="number" class="form-control" name="margin" placeholder="Enter Margin"></td>
+                        <td><input type="number" class="form-control" name="lower_bound" placeholder="Enter Lower Bound"></td>
+                        <td><input type="number" class="form-control" name="upper_bound" placeholder="Enter Upper Bound"></td>
+                        <td><button type="button" class="btn btn-outline-danger btn-sm remove-row">삭제</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <button type="button" class="btn btn-outline-success" id="detectBtn">Detect</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 조작 버튼 -->
+        <div class="col-md-12">
+            <button type="button" class="btn btn-outline-primary me-3" id="saveStartBtn">Save Start</button>
+            <button type="button" class="btn btn-outline-danger" id="saveStartBtn">Save Stop</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to handle row addition
+        document.getElementById('addRowBtn').addEventListener('click', function() {
+            const tableBody = document.getElementById('configTableBody');
+            const rowCount = tableBody.rows.length + 1;
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${rowCount}</td>
+                <td><input type="number" class="form-control" name="margin" placeholder="Enter Margin"></td>
+                <td><input type="number" class="form-control" name="lower_bound" placeholder="Enter Lower Bound"></td>
+                <td><input type="number" class="form-control" name="upper_bound" placeholder="Enter Upper Bound"></td>
+                <td><button type="button" class="btn btn-outline-danger btn-sm remove-row">삭제</button></td>
+            `;
+            tableBody.appendChild(newRow);
+        });
+
+        // Function to handle row removal
+        document.getElementById('configTableBody').addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-row')) {
+                e.target.closest('tr').remove();
+            }
+        });
+
+        // Example logic to simulate camera connection status
+        function updateConnectionStatus(connected) {
+            const statusIndicator = document.getElementById('status-indicator');
+            if (connected) {
+                statusIndicator.classList.remove('bg-danger');
+                statusIndicator.classList.add('bg-success');
+                statusIndicator.textContent = 'Connected';
+            } else {
+                statusIndicator.classList.remove('bg-success');
+                statusIndicator.classList.add('bg-danger');
+                statusIndicator.textContent = 'Disconnected';
+            }
+        }
+
+        // Simulate a connected camera for demonstration
+        updateConnectionStatus(true);
+    });
+</script>
+{% endblock %}

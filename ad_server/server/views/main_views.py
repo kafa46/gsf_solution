@@ -14,8 +14,3 @@ def monitor():
         'monitor.html'
     )
     
-@bp.route('/setting/')
-def setting():
-    return render_template(
-        'setting.html'
-    )
