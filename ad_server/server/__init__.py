@@ -28,12 +28,10 @@ def create_app():
     # View import
     from .views import (
         main_views,
-        setting_views,  # setting_views 추가
     )
 
     # Register modules into app
     app.register_blueprint(main_views.bp)
-    app.register_blueprint(setting_views.bp)  # setting_views.bp 라우터 추가
 
     # Filters
     from .filters import (

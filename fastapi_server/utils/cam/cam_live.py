@@ -3,8 +3,8 @@ import cv2
 import threading
 
 class CameraStream:
-    def __init__(self):
-        self.camera = cv2.VideoCapture(0)
+    def __init__(self, camera_index):
+        self.camera = cv2.VideoCapture(camera_index)
         self.frame = None
         self.stopped = False
         self.lock = threading.Lock()
@@ -36,5 +36,6 @@ class CameraStream:
         self.stopped = True
         self.camera.release()
 
-# 싱글톤으로 사용되는 카메라 스트림
-camera_stream = CameraStream().start()
+# 동적으로 카메라 인덱스에 맞춰 CameraStream 생성
+def get_camera_stream(camera_index):
+    return CameraStream(camera_index).start()

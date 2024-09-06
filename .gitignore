@@ -4,3 +4,4 @@ DRA/datasets/mvtec/carpet/
 experiment/
 .venv/
 *.db
+secret.py
