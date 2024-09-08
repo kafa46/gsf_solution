@@ -5,6 +5,7 @@ class CameraManager:
         self.cameras = [None for i in range(0,10)]  # 카메라 객체들을 저장할 리스트
         self.available_cameras = [] # 카메라가 사용 가능한지 확인
         self.cameras_use = [False for i in range(0,10)] # 카메라가 사용중인지 체크하는 용도
+        self.current_using_index = 0
 
     def find_available_cameras(self):
         for index in range(0,10):
@@ -23,6 +24,7 @@ class CameraManager:
         print("카메라 사용가능 객체 할당")
         self.cameras[camera_index] = CameraStream(camera_index)
         self.cameras_use[camera_index] = True
+        self.current_using_index = camera_index
         return self.cameras[camera_index]   # 카메라 객체 생성 후 반환
 
         
@@ -52,6 +54,15 @@ class CameraStream:
             return buffer.tobytes()
         return None
 
+    def save_frame(self, file_path='temp/captured_frame.png'):
+        # 프레임을 읽어와서 파일로 저장
+        success, frame = self.camera.read()
+        if frame is not None :
+            cv2.imwrite(file_path, frame)
+            print("이미지 저장 완료")
+        else:
+            print(" 이미지 저장 불가 카메라에서 프레임을 읽어올수 없음 ")
+    
     def generate_frames(self):
         while True:
             frame = self.get_frame()

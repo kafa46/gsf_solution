@@ -95,10 +95,47 @@ def dynamic_detected_images(captured_files, lower_bound, upper_bound, margin, de
     pass
 
 # Fixed
-def fixed_detected_images(captured_files, lower_bound, upper_bound, margin, detected_folder, file_prefix="detected"):
-    pass
+def fixed_detected_images(captured_image, lower_bound, upper_bound, margin):
     
+    # (살구색) 스티커 HSV값 설정, 마진값 설정
     
+    # 폴더 생성
+    if not os.path.exists(fx_cropped_folder):
+        os.makedirs(fx_cropped_folder, exist_ok=True)
+    
+    # 탐지 체크 용도
+    contour_image = detect_stickers(captured_image, lower_bound, upper_bound, margin)
+
+    if contour_image is None :
+        print("컨투어 이미지 탐지 안됌")
+        return False
+        
+    # 고정 방식
+    
+    # 원본 이미지 로드
+    image_cv, hsv_image = load_and_preprocess_image(captured_image)
+    
+    # 첫번째 사진 컨투어 찾기
+    contours = get_contours(hsv_image)
+    
+    # 찾은 컨투어로 이미지 크롭 
+    original_crop, margined_crop = get_cropped_sticker_images(captured_image, lower_bound, upper_bound, margin, contours=contours)
+    
+    print("고정 방식 완료!")
+    
+    return margined_crop
+    
+
+def fixed_detected_live():
+    global save_start_flag
+    while save_start_flag == True:
+        if save_start_flag == False:
+            print("동영상 저장 종료")
+            break
+        # 동영상 촬영 시작
+        
+    return 
+
 if __name__ == "__main__":
     # 경로 설정
     # 설정
@@ -170,6 +207,7 @@ if __name__ == "__main__":
             detected_image_path = os.path.join(fx_cropped_folder, f"fx_detected_{file_name}")
             cv2.imwrite(detected_image_path, margined_crop)
             print(f"Detected image saved to: {detected_image_path}")
+            
     print("고정 방식 완료!")
     
     print("스티커 전처리 작업 완료!")

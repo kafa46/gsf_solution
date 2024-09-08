@@ -2,7 +2,10 @@
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from typing import List
+
 from utils.cam import cam_check, cam_live
+from models import DataItem
 
 app = FastAPI()
 
@@ -35,12 +38,26 @@ def video_feed(camera_index: int = Query(description="카메라 인덱스")):
     print(camera_index, " 카메라 라이브 시작")
     return StreamingResponse(camera_stream.generate_frames(), media_type='multipart/x-mixed-replace; boundary=frame')
 
-@app.get("/processed_image")
-def processed_image():
-    # 처리 요청이 들어올때
+@app.post("/image_processing")
+async def processed_image(table_data: List[DataItem]):
+    cam_check.cam_manager.cameras[cam_check.cam_manager.current_using_index].save_frame()
+    
+    for item in table_data:
+        # 각 DataItem의 필드에 접근하여 처리
+        print(f"Processing row {item.rowIndex}:")
+        print(f"  Margin: {item.margin}")
+        print(f"  Lower Bound: {item.lower_bound}")
+        print(f"  Upper Bound: {item.upper_bound}")
+
+    return {"status": "success", "processed_rows": len(table_data)}
+
+    
+@app.get("/image_save_start")
+def image_save_start():
+    # 처리된 이미지 저장 또는 중지 (flag)
     pass
 
-@app.get("/image_save")
-def image_save():
+@app.get("/image_save_stop")
+def image_save_stop():
     # 처리된 이미지 저장 또는 중지 (flag)
     pass
