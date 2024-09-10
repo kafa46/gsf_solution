@@ -1,0 +1,7 @@
+
+.fullscreen {
+    max-width: 1000px;
+    height: 1000px; /* 비율 유지 */
+    display: block;
+    margin: auto; /* 중앙 정렬 */
+}

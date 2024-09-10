@@ -17,24 +17,47 @@
                 <!-- 카메라 열기 버튼 -->
                 <button type="button" class="btn btn-outline-primary" id="camOpenBtn">Open Camera</button>
             </div>
-            </div>
         </div>
     </div>
 
+    <!-- "1|2, 1, 2" 선택을 위한 드롭다운 추가 -->
+    <div class="col-md-12 mb-3">
+        <label for="viewModeSelect" class="form-label">화면 모드 선택</label>
+        <select id="viewModeSelect" class="form-select">
+            <option value="1|2">1 | 2 </option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+        </select>
+    </div>
+
+
     <div class="row mb-4">
-        <!-- 실시간 카메라와 처리된 이미지 -->
-        <div class="col-md-6 mb-3">
+        <!-- 실시간 카메라 -->
+        <div id="videoSection" class="col-md-6 mb-3">
             <div class="border rounded p-2">
-                <h2 class="h5 mb-3">Realtime monitoring</h2>
-                <!-- Live Camera Feed -->
+                <h2 class="h5 mb-3">
+                    (1) Realtime monitoring
+                    <!-- 상태 표시 추가 -->
+                    <span id="statusIndicator" style="color: green; margin-left: 10px;">Live</span>
+                    <!-- 펜 모양 버튼 -->
+                    <button id="toggleButton" class="btn btn-outline-secondary btn-sm" style="margin-left: 10px;">
+                        <i class="bi bi-pencil"></i> <!-- 펜 모양 아이콘 -->
+                    </button>
+                </h2>
                 <img id="videoFeed" src="/static/imgs/ImageIcon.png" class="img-fluid" alt="Live Camera Feed">
             </div>
         </div>
-
-        <div class="col-md-6 mb-3">
+    
+        <!-- 처리된 이미지 -->
+        <div id="processedImageSection" class="col-md-6 mb-3">
             <div class="border rounded p-2">
-                <h2 class="h5 mb-3">Processed Image</h2>
-                <!-- Processed Image -->
+                <h2 class="h5 mb-3">
+                    (2) Processed Image
+                    <!-- select 요소 -->
+                    <select id="imageConfigSelect" class="form-select form-select-sm" aria-label="Image Config Select">
+                        <option value="default">Select Configuration</option>
+                    </select>
+                </h2>
                 <img id="processedImage" src="/static/imgs/ImageIcon.png" class="img-fluid" alt="Processed Image">
             </div>
         </div>
@@ -42,12 +65,14 @@
 
     <div class="row">
         <!-- Table with input fields -->
+        <!-- HSV 값을 출력할 공간 -->
+        <div id="hsvDisplay" style="font-weight: bold; margin-top: 20px;"></div>
         <div class="col-md-12 mb-4">
             <h2 class="h5 mb-3">Configuration</h2>
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>#</th>
+                        <th>Num</th>
                         <th>Margin</th>
                         <th>Lower Bound</th>
                         <th>Upper Bound</th>

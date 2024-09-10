@@ -127,6 +127,7 @@ def fixed_detected_images(captured_image, lower_bound, upper_bound, margin):
     
 
 def fixed_detected_live():
+    # 쓰레드 동기화 처리 해야됌(Lock)
     global save_start_flag
     while save_start_flag == True:
         if save_start_flag == False:
