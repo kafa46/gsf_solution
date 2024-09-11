@@ -3,7 +3,6 @@ import numpy as np
 import os
 from PIL import Image
 
-# ... (기존의 다른 함수들은 그대로 유지) ...
 from func import apply_margin, detect_stickers, load_and_preprocess_image, create_mask, find_corners, find_largest_contour
 
 ####### 이미지 전처리 부분
@@ -99,9 +98,6 @@ def fixed_detected_images(captured_image, lower_bound, upper_bound, margin):
     
     # (살구색) 스티커 HSV값 설정, 마진값 설정
     
-    # 폴더 생성
-    if not os.path.exists(fx_cropped_folder):
-        os.makedirs(fx_cropped_folder, exist_ok=True)
     
     # 탐지 체크 용도
     contour_image = detect_stickers(captured_image, lower_bound, upper_bound, margin)

@@ -43,6 +43,7 @@
                     <button id="toggleButton" class="btn btn-outline-secondary btn-sm" style="margin-left: 10px;">
                         <i class="bi bi-pencil"></i> <!-- 펜 모양 아이콘 -->
                     </button>
+                    <div id="hsvDisplay">HSV: </div>
                 </h2>
                 <img id="videoFeed" src="/static/imgs/ImageIcon.png" class="img-fluid" alt="Live Camera Feed">
             </div>
@@ -66,10 +67,9 @@
     <div class="row">
         <!-- Table with input fields -->
         <!-- HSV 값을 출력할 공간 -->
-        <div id="hsvDisplay" style="font-weight: bold; margin-top: 20px;"></div>
         <div class="col-md-12 mb-4">
             <h2 class="h5 mb-3">Configuration</h2>
-            <table class="table table-bordered">
+            <table class="table table-sm table-bordered">
                 <thead>
                     <tr>
                         <th>Num</th>
@@ -84,8 +84,20 @@
                     <tr>
                         <td>1</td>
                         <td><input type="number" class="form-control" name="margin" placeholder="Enter Margin"></td>
-                        <td><input type="number" class="form-control" name="lower_bound" placeholder="Enter Lower Bound"></td>
-                        <td><input type="number" class="form-control" name="upper_bound" placeholder="Enter Upper Bound"></td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <input type="number" class="form-control" name="lower_h" placeholder="H" style="width: 100px;">
+                                <input type="number" class="form-control" name="lower_s" placeholder="S" style="width: 100px;">
+                                <input type="number" class="form-control" name="lower_v" placeholder="V" style="width: 100px;">
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <input type="number" class="form-control" name="upper_h" placeholder="H" style="width: 100px;">
+                                <input type="number" class="form-control" name="upper_s" placeholder="S" style="width: 100px;">
+                                <input type="number" class="form-control" name="upper_v" placeholder="V" style="width: 100px;">
+                            </div>
+                        </td>
                         <td><button type="button" class="btn btn-outline-danger btn-sm remove-row">삭제</button></td>
                     </tr>
                 </tbody>
