@@ -3,7 +3,7 @@ import numpy as np
 import os
 from PIL import Image
 
-from func import apply_margin, detect_stickers, load_and_preprocess_image, create_mask, find_corners, find_largest_contour
+from .func import apply_margin, detect_stickers, load_and_preprocess_image, create_mask, find_corners, find_largest_contour, draw_corners_and_edges
 
 ####### 이미지 전처리 부분
 # 원본 꼭짓점으로 정의된 영역 내의 이미지를 반환하는 함수
@@ -48,7 +48,7 @@ def crop_margined_region(image, corners, margin):
     return cropped_image
 
 # 네 꼭짓점 반환 함수
-def get_contours(hsv_image):
+def get_contours(hsv_image, lower_bound, upper_bound):
     # 마스크 생성 및 가장 큰 외곽선 찾기
     mask = create_mask(hsv_image, lower_bound, upper_bound)
     max_contour = find_largest_contour(mask)
@@ -75,7 +75,7 @@ def get_cropped_sticker_images(image_path, lower_bound, upper_bound, margin, con
 
     if contours is None:
         # 네 꼭짓점 찾기
-        original_corners = get_contours(hsv_image)
+        original_corners = get_contours(hsv_image, lower_bound, upper_bound)
     else :
         original_corners = contours
     
@@ -112,14 +112,14 @@ def fixed_detected_images(captured_image, lower_bound, upper_bound, margin):
     image_cv, hsv_image = load_and_preprocess_image(captured_image)
     
     # 첫번째 사진 컨투어 찾기
-    contours = get_contours(hsv_image)
+    contours = get_contours(hsv_image, lower_bound, upper_bound)
     
     # 찾은 컨투어로 이미지 크롭 
     original_crop, margined_crop = get_cropped_sticker_images(captured_image, lower_bound, upper_bound, margin, contours=contours)
     
     print("고정 방식 완료!")
     
-    return margined_crop
+    return contours, margined_crop
     
 
 def fixed_detected_live():
@@ -133,78 +133,95 @@ def fixed_detected_live():
         
     return 
 
-if __name__ == "__main__":
-    # 경로 설정
-    # 설정
-    output_folder = "../../data/input/captured_images"
-    dy_cropped_folder = "../../data/output/dy_cropped_stickers"
-    fx_cropped_folder = "../../data/output/fx_cropped_stickers"
-        
-    # (살구색) 스티커 HSV값 설정, 마진값 설정
-    lower_bound = np.array([4,100,140])
-    upper_bound = np.array([20,130,170])
-    margin = 20
+def all_crop_draw(image_path, contours_list, margin_list, save_path):
+    # 이미지 로드
+    image_cv, _ = load_and_preprocess_image(image_path)
     
-    # 폴더 생성
-    if not os.path.exists(dy_cropped_folder):
-        os.makedirs(dy_cropped_folder, exist_ok=True)
-    elif not os.path.exists(fx_cropped_folder):
-        os.makedirs(fx_cropped_folder, exist_ok=True)
+    # 각 컨투어에 대해 처리
+    for contour, margin in zip(contours_list, margin_list):
+        # 마진 적용
+        adjusted_contour = apply_margin(contour, margin)
+                
+        # 마진이 적용된 컨투어 그리기 (초록색)
+        draw_corners_and_edges(image_cv, adjusted_contour, color=(0, 255, 0), thickness=2)
+    
+    full_save_path = os.path.join(save_path, "all_crop.png")
+    # 이미지 저장
+    cv2.imwrite(full_save_path, image_cv)
+    print(f"Image saved to: {full_save_path}")
+        
+# if __name__ == "__main__":
+#     # 경로 설정
+#     # 설정
+#     output_folder = "../../data/input/captured_images"
+#     dy_cropped_folder = "../../data/output/dy_cropped_stickers"
+#     fx_cropped_folder = "../../data/output/fx_cropped_stickers"
+        
+#     # (살구색) 스티커 HSV값 설정, 마진값 설정
+#     lower_bound = np.array([4,100,140])
+#     upper_bound = np.array([20,130,170])
+#     margin = 20
+    
+#     # 폴더 생성
+#     if not os.path.exists(dy_cropped_folder):
+#         os.makedirs(dy_cropped_folder, exist_ok=True)
+#     elif not os.path.exists(fx_cropped_folder):
+#         os.makedirs(fx_cropped_folder, exist_ok=True)
 
-    # 기존에 저장된 이미지 파일들의 경로를 리스트로 가져오기
-    captured_files = [os.path.join(output_folder, f) for f in os.listdir(output_folder) if f.endswith(".png")]
+#     # 기존에 저장된 이미지 파일들의 경로를 리스트로 가져오기
+#     captured_files = [os.path.join(output_folder, f) for f in os.listdir(output_folder) if f.endswith(".png")]
     
-    # 탐지 체크 용도
-    contour_image = detect_stickers(captured_files[0], lower_bound, upper_bound, margin)
+#     # 탐지 체크 용도
+#     contour_image = detect_stickers(captured_files[0], lower_bound, upper_bound, margin)
 
-    if contour_image is None :
-        print("컨투어 이미지 탐지 안됌")
-        exit(0)
+#     if contour_image is None :
+#         print("컨투어 이미지 탐지 안됌")
+#         exit(0)
 
-    # 동적 방식
-    for file_path in captured_files:
-        file_name = os.path.basename(file_path)
-        file_name = str(file_name).replace("wafer_capture_", "")
+#     # 동적 방식
+#     for file_path in captured_files:
+#         file_name = os.path.basename(file_path)
+#         file_name = str(file_name).replace("wafer_capture_", "")
         
-        """
-        스티커 디텍션 동작부분
-        """
-        original_crop, margined_crop = get_cropped_sticker_images(file_path, lower_bound, upper_bound, margin)
+#         """
+#         스티커 디텍션 동작부분
+#         """
+#         original_crop, margined_crop = get_cropped_sticker_images(file_path, lower_bound, upper_bound, margin)
         
         
-        # 디텍션된 이미지 전체를 저장
-        if margined_crop is not None:
-            detected_image_path = os.path.join(dy_cropped_folder, f"dy_detected_{file_name}")
-            cv2.imwrite(detected_image_path, margined_crop) # margin 적용된 이미지 저장
-            print(f"Detected image saved to: {detected_image_path}")
-    print("동적 방식 완료!")
+#         # 디텍션된 이미지 전체를 저장
+#         if margined_crop is not None:
+#             detected_image_path = os.path.join(dy_cropped_folder, f"dy_detected_{file_name}")
+#             cv2.imwrite(detected_image_path, margined_crop) # margin 적용된 이미지 저장
+#             print(f"Detected image saved to: {detected_image_path}")
+#     print("동적 방식 완료!")
     
     
-    # 고정 방식
+#     # 고정 방식
     
-    # 원본 이미지 로드
-    image_cv, hsv_image = load_and_preprocess_image(captured_files[0])
+#     # 원본 이미지 로드
+#     image_cv, hsv_image = load_and_preprocess_image(captured_files[0])
     
-    # 첫번째 사진 컨투어 찾기
-    contours = get_contours(hsv_image)
+#     # 첫번째 사진 컨투어 찾기
+#     contours = get_contours(hsv_image)
     
-    for file_path in captured_files:
-        file_name = os.path.basename(file_path)
-        file_name = str(file_name).replace("wafer_capture_", "")
+#     for file_path in captured_files:
+#         file_name = os.path.basename(file_path)
+#         file_name = str(file_name).replace("wafer_capture_", "")
         
-        """
-        스티커 디텍션 동작부분
-        """
+#         """
+#         스티커 디텍션 동작부분
+#         """
         
-        original_crop, margined_crop = get_cropped_sticker_images(file_path, lower_bound, upper_bound, margin, contours=contours)
+#         original_crop, margined_crop = get_cropped_sticker_images(file_path, lower_bound, upper_bound, margin, contours=contours)
         
         
-        # 디텍션된 이미지 전체를 저장
-        if margined_crop is not None:
-            detected_image_path = os.path.join(fx_cropped_folder, f"fx_detected_{file_name}")
-            cv2.imwrite(detected_image_path, margined_crop)
-            print(f"Detected image saved to: {detected_image_path}")
+#         # 디텍션된 이미지 전체를 저장
+#         if margined_crop is not None:
+#             detected_image_path = os.path.join(fx_cropped_folder, f"fx_detected_{file_name}")
+#             cv2.imwrite(detected_image_path, margined_crop)
+#             print(f"Detected image saved to: {detected_image_path}")
             
-    print("고정 방식 완료!")
+#     print("고정 방식 완료!")
     
-    print("스티커 전처리 작업 완료!")
+#     print("스티커 전처리 작업 완료!")

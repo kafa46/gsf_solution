@@ -1,6 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
+    let isSaving = false;  // 이미지 저장 상태를 관리하는 플래그
+
     // FastAPI 서버로부터 카메라 목록을 가져오는 함수
     function refreshCameraList() {
+        if (isSaving) {
+            alert("이미지 저장중이므로 다른 동작을 수행하실 수 없습니다.")
+            return;
+        }
+
         fetch('http://localhost:8899/available_cameras')
             .then(response => response.json())
             .then(data => {
@@ -19,6 +26,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 카메라 열기 버튼 클릭 시 스트리밍을 시작하는 함수
     function startStreaming() {
+        if (isSaving) {
+            alert("이미지 저장중이므로 다른 동작을 수행하실 수 없습니다.")
+            return;
+        }
+
         const selectedCamera = document.getElementById('cameraSelect').value;
         const videoFeed = document.getElementById('videoFeed');
         if (selectedCamera !== "") {
@@ -315,8 +327,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 이미지 처리 요청
     function requestProcessing() {
-        const tableData = collectTableData();
+        if (isSaving) {
+            alert("이미지 저장중이므로 다른 동작을 수행하실 수 없습니다.")
+            return;
+        }
 
+        const tableData = collectTableData();
+    
         fetch('http://localhost:8899/image_processing', {
             method: 'POST',
             headers: {
@@ -324,19 +341,128 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify(tableData)
         })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success' || data.status === 'partial_success') {
+                processedImages(data.image_paths);
+                
+                if (data.alert_message) {
+                    alert(data.alert_message);
+                }
+    
+                if (data.failed_detections.length > 0) {
+                    console.log('Failed detections for rows:', data.failed_detections);
+                }
+    
+                alert(`Images processed. Successful: ${data.successful_detections}, Failed: ${data.failed_detections.length}`);
+            } else {
+                throw new Error('Image processing failed');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('error : 카메라가 Stop 상태인지 확인해 주시고, 값을 정확하게 입력했는지 확인해주세요.');
+        });
+    }
+
+    // crop된 이미지 출력 함수
+    function processedImages(imagePaths) {
+        const select = document.getElementById('processedImageSelect');
+        const processedImage = document.getElementById('processedImage');
+    
+        // 기존 옵션 제거 (default 옵션 제외)
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+    
+        // ALL과 FULL 옵션 추가
+        select.add(new Option('FULL', 'FULL'));
+    
+        // 새로운 옵션 추가
+        imagePaths.forEach((path, index) => {
+            const option = new Option(`Image ${index + 1}`, path);
+            select.add(option);
+        });
+    
+        function updateImage(src) {
+            const timestamp = new Date().getTime();
+            processedImage.src = `${src}?t=${timestamp}`;
+        }
+    
+        // 첫 번째 이미지 표시 (있으면)
+        if (imagePaths.length > 0) {
+            updateImage(`http://localhost:8899${imagePaths[0].replace(/^\./, '')}`);
+            select.value = imagePaths[0];
+        } else {
+            processedImage.src = "/static/imgs/ImageIcon.png";
+            select.value = "default";
+        }
+    
+        // select 변경 이벤트 리스너
+        select.onchange = function() {
+            if (this.value === "FULL") {
+                updateImage("http://localhost:8899/temp/output/all_crop.png");
+            } else if (this.value !== "default") {
+                updateImage(`http://localhost:8899${this.value.replace(/^\./, '')}`);
+            } else {
+                processedImage.src = "/static/imgs/ImageIcon.png";
+            }
+        };
+    }
+    
+    function saveStart() {
+        if (isSaving) {
+            alert("저장 중입니다.")
+            return;
+        }
+        fetch('http://localhost:8899/image_save_start')
+        .then(response => response.json())
+        .then(data => {
+            isSaving = true;
+            console.log('Save started:', data);
+            alert('Image saving started.');
+            
+            // 툴 상태 업데이트
+            isToolActive = false;
+            updateToolState();
+
+            // 저장 중 상태 표시
+            const savingStatus = document.getElementById('savingStatus');
+            savingStatus.textContent = "현재 이미지 저장 중입니다. 페이지를 끄거나 변경하지 말아주세요.";
+            savingStatus.style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error occurred while starting image save.');
+        });
+    }
+
+    function saveStop() {
+        fetch('http://localhost:8899/image_save_stop')
             .then(response => response.json())
             .then(data => {
-                console.log('Success:', data);
-                alert('Image processed successfully.');
+                console.log('Save stopped:', data);
+                alert('Image saving stopped.');
+                
+                // 저장 중 상태 표시 제거
+                const savingStatus = document.getElementById('savingStatus');
+                savingStatus.style.display = 'none';
+                isSaving = false; 
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error occurred while processing the image.');
+                alert('Error occurred while stopping image save.');
             });
     }
 
+    function updateToolState() {
+        toggleButton.classList.toggle('active', isToolActive);
+        toggleButton.innerHTML = isToolActive ? '<i class="bi bi-pencil-fill"></i>' : '<i class="bi bi-pencil"></i>';
+        statusIndicator.style.color = isToolActive ? 'red' : 'green';
+        statusIndicator.textContent = isToolActive ? 'Stopped' : 'Live';
+        hsvDisplay.hidden = !isToolActive;
+    }
 
-   
     // 새로고침 버튼 클릭 이벤트
     document.getElementById('refreshBtn').addEventListener('click', refreshCameraList);
 
@@ -345,4 +471,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 이미지 처리 버튼 클릭 이벤트
     document.getElementById('detectBtn').addEventListener('click', requestProcessing);
+
+    // 저장 시작 버튼 클릭 이벤트
+    document.getElementById('saveStartBtn').addEventListener('click', saveStart);
+
+    // 저장 중지 버튼 클릭 이벤트
+    document.getElementById('saveStopBtn').addEventListener('click', saveStop);
 });

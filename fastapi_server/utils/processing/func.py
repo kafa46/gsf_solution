@@ -81,8 +81,8 @@ def draw_corners_and_edges(image, corners, color=(255, 0, 100), thickness=2):
     """이미지에 네 꼭짓점과 이를 잇는 선 그리기"""
     for i in range(4):
         cv2.line(image, tuple(corners[i]), tuple(corners[(i + 1) % 4]), color, thickness)
-    for corner in corners:
-        cv2.circle(image, tuple(corner), 2, (0, 0, 255), -1)
+    # for corner in corners:
+    #     cv2.circle(image, tuple(corner), 2, (0, 0, 255), -1)
 
 
 def detect_stickers(image_path, lower_bound, upper_bound, margin, crop=False):

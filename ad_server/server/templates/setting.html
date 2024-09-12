@@ -55,8 +55,8 @@
                 <h2 class="h5 mb-3">
                     (2) Processed Image
                     <!-- select 요소 -->
-                    <select id="imageConfigSelect" class="form-select form-select-sm" aria-label="Image Config Select">
-                        <option value="default">Select Configuration</option>
+                    <select id="processedImageSelect" class="form-select form-select-sm" aria-label="Image Select">
+                        <option value="default">Select Image</option>
                     </select>
                 </h2>
                 <img id="processedImage" src="/static/imgs/ImageIcon.png" class="img-fluid" alt="Processed Image">
@@ -110,6 +110,7 @@
 
     <div class="row">
         <!-- 조작 버튼 -->
+        <div id="savingStatus" style="display: none; color: green; font-weight: bold;"></div>
         <div class="col-md-12">
             <button type="button" class="btn btn-outline-primary me-3" id="saveStartBtn">Save Start</button>
             <button type="button" class="btn btn-outline-danger" id="saveStopBtn">Save Stop</button>

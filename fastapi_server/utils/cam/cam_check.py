@@ -48,7 +48,7 @@ class CameraStream:
     def get_frame(self):
         # 카메라에서 직접 프레임을 읽어옴
         success, frame = self.camera.read()
-        if success:
+        if success:            
             # PNG 형식으로 인코딩하여 반환
             ret, buffer = cv2.imencode('.png', frame)
             return buffer.tobytes()
