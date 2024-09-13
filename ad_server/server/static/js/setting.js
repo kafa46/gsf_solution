@@ -331,6 +331,11 @@ document.addEventListener('DOMContentLoaded', function() {
             alert("이미지 저장중이므로 다른 동작을 수행하실 수 없습니다.")
             return;
         }
+        
+        if(!isToolActive){
+            alert('error : 실시간 영상이 stop 상태인지 확인해주세요')
+            return;
+        }
 
         const tableData = collectTableData();
     
