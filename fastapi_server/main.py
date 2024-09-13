@@ -256,3 +256,48 @@ async def save_images(output_dir):
         await asyncio.sleep(0.1)  # 10 FPS로 제한
 
     print("저장종료")
+
+### 이미지 전송방법 3가지
+# 1. http post 요청을 사용한 방법
+# 2. 웹 소켓 이용
+# 3. gRPC 프로토콜 사용 방법
+
+### 1. http post 요청을 사용한 방법
+# flask url로 이미지 전송 코드 구현  (import request 필요)
+# async def save_images(output_dir):
+#     frame_count = 0
+#     resize_dim = (800, 800)
+
+#     while global_state_instance.save_flag:
+#         ret, frame = cam_check.cam_manager.cameras[cam_check.cam_manager.current_using_index].camera.read()
+#         if ret:
+#             pil_image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+#             pil_image = pil_image.resize(resize_dim, Image.LANCZOS)
+            
+#             # 이미지를 바이트 스트림으로 변환
+#             img_byte_arr = BytesIO()
+#             pil_image.save(img_byte_arr, format='PNG')
+#             img_byte_arr = img_byte_arr.getvalue()
+
+#             # Flask 서버로 POST 요청 보내기
+#             response = requests.post('http://127.0.0.1:8877/receive_image', 
+#                                      files={'image': img_byte_arr})
+            
+#             if response.status_code == 200:
+#                 print(f"Image {frame_count} sent successfully")
+#             else:
+#                 print(f"Failed to send image {frame_count}")
+
+#             frame_count += 1
+
+#         await asyncio.sleep(0.1)
+
+
+# flask 쪽에서 이미지 받는 코드 구현  (import request 필요)
+# @app.route('/receive_image', methods=['POST'])
+# def receive_image():
+#     if 'image' not in request.files:
+#         return 'No image file', 400
+    
+#     file = request.files['image']
+#     이미지 처리 로직 추가...
