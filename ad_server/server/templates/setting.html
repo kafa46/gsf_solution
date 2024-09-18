@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="row mb-4">
+        <!-- 카메라 목록 및 새로고침 버튼 -->
+        <div class="col-md-6 mb-3">
+            <div class="border rounded p-2">
+                <h2 class="h5 mb-3">Available Cameras</h2>
+                <!-- 카메라 선택 UI -->
+                <select id="cameraSelect" class="form-select mb-3">
+                    <option value="">Select a camera</option>
+                </select>
+                <!-- 새로고침 버튼 -->
+                <button type="button" class="btn btn-outline-secondary" id="refreshBtn">Refresh Camera List</button>
+                <!-- 카메라 열기 버튼 -->
+                <button type="button" class="btn btn-outline-primary" id="camOpenBtn">Open Camera</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- "1|2, 1, 2" 선택을 위한 드롭다운 추가 -->
+    <div class="col-md-12 mb-3">
+        <label for="viewModeSelect" class="form-label">화면 모드 선택</label>
+        <select id="viewModeSelect" class="form-select">
+            <option value="1|2">1 | 2 </option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+        </select>
+    </div>
+
+
+    <div class="row mb-4">
+        <!-- 실시간 카메라 -->
+        <div id="videoSection" class="col-md-6 mb-3">
+            <div class="border rounded p-2">
+                <h2 class="h5 mb-3">
+                    (1) Realtime monitoring
+                    <!-- 상태 표시 추가 -->
+                    <span id="statusIndicator" style="color: green; margin-left: 10px;">Live</span>
+                    <!-- 펜 모양 버튼 -->
+                    <button id="toggleButton" class="btn btn-outline-secondary btn-sm" style="margin-left: 10px;">
+                        <i class="bi bi-pencil"></i> <!-- 펜 모양 아이콘 -->
+                    </button>
+                    <div id="hsvDisplay">HSV: </div>
+                </h2>
+                <img id="videoFeed" src="/static/imgs/ImageIcon.png" class="img-fluid" alt="Live Camera Feed">
+            </div>
+        </div>
+    
+        <!-- 처리된 이미지 -->
+        <div id="processedImageSection" class="col-md-6 mb-3">
+            <div class="border rounded p-2">
+                <h2 class="h5 mb-3">
+                    (2) Processed Image
+                    <!-- select 요소 -->
+                    <select id="processedImageSelect" class="form-select form-select-sm" aria-label="Image Select">
+                        <option value="default">Select Image</option>
+                    </select>
+                </h2>
+                <img id="processedImage" src="/static/imgs/ImageIcon.png" class="img-fluid" alt="Processed Image">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Table with input fields -->
+        <!-- HSV 값을 출력할 공간 -->
+        <div class="col-md-12 mb-4">
+            <h2 class="h5 mb-3">Configuration</h2>
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th>Num</th>
+                        <th>Margin</th>
+                        <th>Lower Bound</th>
+                        <th>Upper Bound</th>
+                        <th><button type="button" class="btn btn-outline-secondary btn-sm" id="addRowBtn">행 추가</button></th>
+                    </tr>
+                </thead>
+                <tbody id="configTableBody">
+                    <!-- table row -->
+                    <tr>
+                        <td>1</td>
+                        <td><input type="number" class="form-control" name="margin" placeholder="Enter Margin"></td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <input type="number" class="form-control" name="lower_h" placeholder="H" style="width: 100px;">
+                                <input type="number" class="form-control" name="lower_s" placeholder="S" style="width: 100px;">
+                                <input type="number" class="form-control" name="lower_v" placeholder="V" style="width: 100px;">
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <input type="number" class="form-control" name="upper_h" placeholder="H" style="width: 100px;">
+                                <input type="number" class="form-control" name="upper_s" placeholder="S" style="width: 100px;">
+                                <input type="number" class="form-control" name="upper_v" placeholder="V" style="width: 100px;">
+                            </div>
+                        </td>
+                        <td><button type="button" class="btn btn-outline-danger btn-sm remove-row">삭제</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- 이미지 처리 버튼 -->
+            <button type="button" class="btn btn-outline-success" id="detectBtn">Detect</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 조작 버튼 -->
+        <div id="savingStatus" style="display: none; color: green; font-weight: bold;"></div>
+        <div class="col-md-12">
+            <button type="button" class="btn btn-outline-primary me-3" id="saveStartBtn">Save Start</button>
+            <button type="button" class="btn btn-outline-danger" id="saveStopBtn">Save Stop</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

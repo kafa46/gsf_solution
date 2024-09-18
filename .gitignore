@@ -1,4 +1,9 @@
-ad_server/secret.py
 __pycache__
 DRA/datasets/mvtec/carpet/
 experiment/
+
+.venv/
+*.db
+secret.py
+migrations/
+ad_server/secret.py
