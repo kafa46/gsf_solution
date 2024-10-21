@@ -1,43 +1,58 @@
 {% extends "base.html" %}
 
+
+
 {% block content %}
-<form action="">
-    <div class="row">
-        <p>탐지 민감도 설정</p>
+
+<form action="", id="form">
+  <div class="row">
+    <p>탐지 민감도 설정</p>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="sensitivity" value="high" id="high" checked>
+    <label class="form-check-label" for="high">
+      High (기준값 5% Outlier 결함으로 판정)
+    </label>
+  </div>
+  <div class="form-check my-3">
+    <input class="form-check-input" type="radio" name="sensitivity" value="middle" id="middle">
+    <label class="form-check-label" for="middle">
+      Middle (기준값 2% Outlier 결함으로 판정)
+    </label>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="sensitivity" value="low" id="low">
+    <label class="form-check-label" for="low">
+      Low (기준값 1% Outlier 결함으로 판정)
+    </label>
+  </div>
+  <div class="row monitor">
+    <div class="col-sm-2">
+      <a class="btn btn-outline-primary mt-3 mx-2" id="apply-sensitivity">적용</a>
     </div>
-    <div class="form-check">
-        <input class="form-check-input" type="radio" name="sensitivity" id="high" checked>
-        <label class="form-check-label" for="high">
-          High
-        </label>
+    <hr>
+  </div>
+  <div class="monitor-area" hidden>
+    <div class="row my-3">
+      <p>Realtime monitoring</p>
+      <!-- <div class="col-sm-1"></div> -->
+      <div class="col-sm-8">
+        <canvas id="anomaly-chart" width="600" height="300"></canvas>
       </div>
-      <div class="form-check my-3">
-        <input class="form-check-input" type="radio" name="sensitivity" id="middle">
-        <label class="form-check-label" for="middle">
-          Middle
-        </label>
+      <div class="col-sm-4"></div>
+    </div>
+    <div class="row">
+      <div class="col-sm-2"></div>
+      <div class="col-sm-10">
+        <a class="btn btn-outline-primary mx-1" id="start">Start</a>
+        <a class="btn btn-outline-secondary mx-1" id="pause">Pause</a>
+        <a class="btn btn-outline-danger mx-1" id="stop">Stop</a>
       </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="sensitivity" id="row">
-        <label class="form-check-label" for="low">
-          Low
-        </label>
-      </div>
-      <div class="row my-3">
-          <p>Realtime monitoring</p>
-          <div class="col-sm-1"></div>
-          <div class="col-sm-8">
-            <canvas id="Chart" width="600" height="300"></canvas>
-          </div>
-          <div class="col-sm-3"></div>
-      </div>
-      <div class="row">
-        <div class="col-sm-2"></div>
-        <div class="col-sm-10">
-          <a href="" class="btn btn-outline-primary mx-1">Start</a>
-          <a href="" class="btn btn-outline-secondary mx-1">Pause</a>
-          <a href="" class="btn btn-outline-danger mx-1">Stop</a>
-        </div>
-      </div>
+    </div>
+  </div>
+  
+  <!-- Status for Realtime Monitoring -->
+  <input type="text" id="monitor-status" hidden>
 </form>
+
 {% endblock %}

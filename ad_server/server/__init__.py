@@ -1,13 +1,20 @@
+
+import config
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from datetime import timedelta
-import config
+from config import PRETRAINED_AD_MODEL
+# from DRA.inference import DRAInference
+# from D.inference import DRAInference
+from anomaly_ai.inference import DRAInference
+from flask_socketio import SocketIO
 
 db = SQLAlchemy()
-
 migrate = Migrate()
+socketio = SocketIO() # Create socket.io object
+dra = DRAInference(PRETRAINED_AD_MODEL) # Anomaly detection object
 
 def create_app():
     '''create app'''
@@ -18,11 +25,17 @@ def create_app():
     app.config['UPLOAD_FOLDER'] = config.UPLOAD_FILE_DIR
 
     app.config.from_object(config)
+    socketio.init_app(
+        app, 
+        debug=True, 
+        cors_allowed_origins='*', 
+        # async_mode='eventlet'
+    )
 
     # ORM DB setting
     db.init_app(app)
     migrate.init_app(app=app, db=db, render_as_batch=True)
-    
+
     from server import models
 
     # View import
