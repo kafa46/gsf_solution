@@ -47,7 +47,10 @@ def create_mask(hsv_image, lower_bound, upper_bound):
 
 def find_largest_contour(mask):
     """마스크에서 가장 큰 외곽선 찾기"""
+    # RETR_EXTERNAL: 가장 외곽의 외곽선만 검출
+    # CHAIN_APPROX_SIMPLE: 외곽선의 수평, 수직, 대각선 부분을 압축하여 끝점만 저장
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
     if contours:
         return max(contours, key=cv2.contourArea)
     else:
