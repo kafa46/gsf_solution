@@ -94,9 +94,11 @@ class DRAInference():
             z_score *= -1.0
         
         anomaly_status = True if z_score >= self.threshold else False
+        # True: 비정상, False: 정상
+        
         return {
             'anomaly_score': anomaly_score,
-            'status': anomaly_status,
+            'is_anomaly': anomaly_status,
             'z_score': z_score,
             'threshold': self.threshold,
         }

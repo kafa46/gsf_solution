@@ -43,7 +43,7 @@ class ImageSender:
             rand_num = random.randint(0, len(self.files)-1)
             send_file = self.files[rand_num]
             classname = send_file.split('/')[-2]
-            files = {'file': open(send_file, 'rb')}
+            files = {'image': open(send_file, 'rb')}
             data = {'classname': classname}
             print(send_file)
             response = requests.post(

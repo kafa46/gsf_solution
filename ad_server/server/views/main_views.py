@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from flask import Blueprint, jsonify, render_template, request
 from PIL import Image
@@ -18,13 +19,16 @@ def index():
 @bp.route('/monitor/', methods=['GET', 'POST'])
 def monitor():
     if request.method == 'POST':
-        uploaded_file = request.files.get('file')
+        uploaded_file = request.files.get('image')
         classname = request.form.get('classname')
+        
         print('--------------'*5)
         # print(f'filename: {uploaded_file.filename}')
         label = False if classname=='good' else True
+        print(f'uploaded_file.filename: {uploaded_file.filename}')
         print(f'classname: {classname}')
         img = Image.open(uploaded_file).convert('RGB')
+        # img.save(os.path.join('saved_imgs', ))
         anomaly_info = dra.inference(img)
         anomaly_info['label'] = label
         print(f'Anomaly: {anomaly_info}')

@@ -119,7 +119,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error("Error fetching image from server:", error);
         });
-
         alert("펜 모드 활성화")
     }
 

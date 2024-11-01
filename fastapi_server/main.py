@@ -14,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 
 from typing import List
 from PIL import Image
+import requests
 
 # user define 모듈
 from utils.cam import cam_check, cam_live
@@ -179,7 +180,12 @@ async def processed_image(table_data: List[DataItem] = Body(...)):
             detection_failures.append(index + 1)
 
     # 디텍션한 전체 이미지를 만듬
-    detection_stickers.all_crop_draw(stop_img, global_state_instance.contours_list, global_state_instance.margin_list, output_dir)
+    detection_stickers.all_crop_draw(
+        stop_img, 
+        global_state_instance.contours_list, 
+        global_state_instance.margin_list, 
+        output_dir
+    )
 
     status = "success" if not detection_failures else "partial_success"
     alert_message = " HSV값을 조절해주세요" if detection_failures else None
@@ -214,7 +220,11 @@ async def image_save_start():
                 print(f"Error deleting {file}: {str(e)}")
         
         # 비동기로 이미지 저장 작업 시작
-        asyncio.create_task(save_images(output_dir))
+        # asyncio.create_task(save_images(output_dir))
+        
+        # 비동기로 이미지 전송 시작
+        print('start sending imgs...')
+        asyncio.create_task(send_images())
     
     return {"status": "started"}
 
@@ -256,6 +266,51 @@ async def save_images(output_dir):
         await asyncio.sleep(0.1)  # 10 FPS로 제한
 
     print("저장종료")
+
+async def send_images():
+    '''생성된 이미지를 anomaly server로 전송
+    - Written by 노기섭 ('24. 10. 16.(수) ~ 현재)
+    '''
+    PORT = '8877'
+    AD_SERVER_IP = f'http://127.0.0.1:{PORT}/monitor/'
+    print(f'이미지 전송 시작 -> AD_SERVER ({AD_SERVER_IP})')
+    frame_count = 0
+    resize_dim = (800, 800)  # 원하는 크기로 설정
+
+    while global_state_instance.save_flag:
+        ret, frame = cam_check.cam_manager.cameras[cam_check.cam_manager.current_using_index].camera.read()
+        if ret:
+            # OpenCV 프레임을 PIL Image로 변환
+            pil_image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            pil_image = pil_image.resize(resize_dim, Image.LANCZOS)
+            filename = f'{frame_count:03d}.png'
+            img_byte_arr = io.BytesIO()
+            pil_image.save(img_byte_arr, format='PNG')
+            files = {
+                'image': (filename, img_byte_arr.getvalue(), 'image/png')
+            }
+            response = requests.post(AD_SERVER_IP, files=files)
+            
+            # 파일로 저장한 후 전송하는 방식 -> 속도 면에서 불리
+            # pil_image.save(filename, format='PNG')
+            # with open(filename, 'rb') as f:
+            #     response = requests.post(
+            #         AD_SERVER_IP,
+            #         files={'file': f},
+            #         data={
+            #             'filename': filename,
+            #             'classname': 'good',
+            #         }
+            #     )
+            if response.status_code == 200:
+                print(f"Image {frame_count:03d} sent successfully")
+                if os.path.exists(filename):
+                    os.remove(filename)
+            else:
+                print(f"Failed to send image {frame_count}")                    
+            frame_count += 1
+
+        await asyncio.sleep(0.1)  # 10 FPS로 제한
 
 ### 이미지 전송방법 3가지
 # 1. http post 요청을 사용한 방법
